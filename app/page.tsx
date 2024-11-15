@@ -4,15 +4,25 @@ import { MultiBarChart } from "../components/multi-bar-chart";
 import { getDay } from "date-fns";
 
 export default async function Home() {
-  const userOneResponse = await fetch(
-    `${process.env.BASE_API_URL}/api/snapshots/user/1`
-  );
-  const userOneData = await userOneResponse.json();
+  const fetchData = async (userId: number) => {
+    try {
+      const response = await fetch(
+        `${process.env.BASE_API_URL}/api/snapshots/user/${userId}`
+      );
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching data for user ${userId}: ${response.statusText}`
+        );
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return { snapshots: [] }; // Return an empty array or handle as needed
+    }
+  };
 
-  const userTwoResponse = await fetch(
-    `${process.env.BASE_API_URL}/api/snapshots/user/2`
-  );
-  const userTwoData = await userTwoResponse.json();
+  const userOneData = await fetchData(1);
+  const userTwoData = await fetchData(2);
 
   const dayData = [
     { day: "Sun", userOne: 0, userTwo: 0 },
