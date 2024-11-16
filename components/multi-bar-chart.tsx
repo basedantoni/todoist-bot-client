@@ -39,13 +39,13 @@ const chartConfig = {
 
 export function MultiBarChart({ data }: { data: DayData[] }) {
   return (
-    <Card>
+    <Card className="sm:col-span-2">
       <CardHeader>
         <CardTitle>Completed Tasks</CardTitle>
         <CardDescription>Weekly</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+        <ChartContainer config={chartConfig} className="min-h-[150px] w-full">
           <BarChart accessibilityLayer data={data}>
             <XAxis
               dataKey="day"
