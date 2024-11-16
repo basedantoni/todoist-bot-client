@@ -3,6 +3,8 @@ import Image from "next/image";
 import { MultiBarChart } from "../components/multi-bar-chart";
 import { getDay } from "date-fns";
 
+export const revalidate = 60;
+
 export default async function Home() {
   const fetchData = async (userId: number) => {
     try {
@@ -17,7 +19,7 @@ export default async function Home() {
       return await response.json();
     } catch (error) {
       console.error(error);
-      return { snapshots: [] }; // Return an empty array or handle as needed
+      return { snapshots: [] };
     }
   };
 
