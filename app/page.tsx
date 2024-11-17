@@ -1,13 +1,30 @@
 import Image from "next/image";
 
-import { MultiBarChart } from "../components/multi-bar-chart";
-import { getDay } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TotalTasks from "@/components/total-tasks";
+import { MultiBarChart } from "@/components/multi-bar-chart";
 import { ContributionChart } from "@/components/contribution-chart";
+import { Snapshot } from "@/types";
 
 export const revalidate = 60;
 
 export default async function Home() {
+  const fetchProjectUsers = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.BASE_API_URL}/api/projects/1/users`
+      );
+      if (!response.ok) {
+        throw new Error(`Error fetching project users: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  };
+
+  const { projectUsers } = await fetchProjectUsers();
+
   const fetchCompletedTasks = async () => {
     try {
       const response = await fetch(
@@ -27,7 +44,7 @@ export default async function Home() {
 
   const completedTasks = await fetchCompletedTasks();
 
-  const fetchData = async (userId: number) => {
+  const fetchSnapshotData = async (userId: number) => {
     try {
       const response = await fetch(
         `${process.env.BASE_API_URL}/api/snapshots/user/${userId}`
@@ -44,34 +61,13 @@ export default async function Home() {
     }
   };
 
-  const userOneData = await fetchData(1);
-  const userTwoData = await fetchData(2);
+  const userSnapshots: Record<string, Snapshot[]> = {};
 
-  const dayData = [
-    { day: "Sun", userOne: 0, userTwo: 0 },
-    { day: "Mon", userOne: 0, userTwo: 0 },
-    { day: "Tue", userOne: 0, userTwo: 0 },
-    { day: "Wed", userOne: 0, userTwo: 0 },
-    { day: "Thu", userOne: 0, userTwo: 0 },
-    { day: "Fri", userOne: 0, userTwo: 0 },
-    { day: "Sat", userOne: 0, userTwo: 0 },
-  ];
-
-  for (const item of userOneData.snapshots) {
-    const day = getDay(new Date(item.createdAt));
-    dayData[day] = {
-      ...dayData[day],
-      userOne: item.completedTasks,
-    };
+  for (const user of projectUsers) {
+    const { snapshots } = await fetchSnapshotData(user.id);
+    userSnapshots[user.name] = snapshots;
   }
 
-  for (const item of userTwoData.snapshots) {
-    const day = getDay(new Date(item.createdAt));
-    dayData[day] = {
-      ...dayData[day],
-      userTwo: item.completedTasks,
-    };
-  }
   return (
     <div className="grid grid-rows-[16px_1fr_16px] items-center justify-items-center min-h-screen p-8 pb-20 gap-12 sm:py-10 sm:px-20">
       <div className="flex items-center gap-4">
@@ -84,26 +80,16 @@ export default async function Home() {
         />
         <h1 className="text-4xl font-bold">Todoist Bot</h1>
       </div>
-      <div className="w-full sm:grid-cols-auto-fill-300 grid gap-3 overscroll-contain">
-        <MultiBarChart data={dayData} />
-        <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>Completed Tasks</CardTitle>
-          </CardHeader>
-          <CardContent className="flex justify-center items-center sm:pt-10">
-            <p className="text-8xl font-bold">
-              {completedTasks.totalCompletedTasks.total}
-            </p>
-          </CardContent>
-        </Card>
-        <ContributionChart
-          title="User One"
-          contributions={userOneData.snapshots}
-        />
-        <ContributionChart
-          title="User Two"
-          contributions={userTwoData.snapshots}
-        />
+      <div className="w-full sm:grid-cols-auto-fill-300 grid space-y-4 sm:space-y-0 sm:gap-3 overscroll-contain">
+        <MultiBarChart data={userSnapshots} />
+        <TotalTasks completedTasks={completedTasks.totalCompletedTasks.total} />
+        {Object.entries(userSnapshots).map(([userName, contributions]) => (
+          <ContributionChart
+            key={userName}
+            title={userName}
+            contributions={contributions}
+          />
+        ))}
       </div>
     </div>
   );

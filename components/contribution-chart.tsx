@@ -16,19 +16,17 @@ import { useTheme } from "next-themes";
 import { useWindowSize } from "@uidotdev/usehooks";
 
 import { formatRFC3339, subMonths } from "date-fns";
-import { Contribution } from "@/types";
+import { Snapshot } from "@/types";
 
 export function ContributionChart({
   title,
   contributions,
 }: {
   title: string;
-  contributions: Contribution[];
+  contributions: Snapshot[];
 }) {
   const { theme } = useTheme();
   const size = useWindowSize();
-
-  console.log(size.width);
 
   const monthOffset: number = size.width
     ? size.width < 768
@@ -53,7 +51,7 @@ export function ContributionChart({
   // Create a copy of contributions for processing without mutating the original data
   const contributionMap = new Map<string, Activity>();
 
-  contributions.forEach((c: Contribution) => {
+  contributions.forEach((c: Snapshot) => {
     const date = new Date(c.createdAt).toLocaleDateString("en-CA"); // Convert to local date in ISO format (YYYY-MM-DD)
     const activity = contributionMap.get(date);
     if (activity) {
@@ -82,17 +80,15 @@ export function ContributionChart({
     },
   ];
 
-  console.log("Contribution Data\n", contributionData);
-
   const explicitTheme: ThemeInput = {
-    light: ["#f0f0f0", "#6eacf8", "#3c85e0", "#237be9"],
-    dark: ["#4d4d4d", "#60a5fa", "#2876d6", "#0052b8"],
+    light: ["#f0f0f0", "#6eacf8", "#3c85e0", "#0D47A0"],
+    dark: ["#4d4d4d", "#60a5fa", "#2876d6", "#0D47A0"],
   };
 
   return (
-    <Card className="overflow-hidden min-w-56 w-full col-span-2 row-span-1">
+    <Card className="overflow-hidden min-w-56 w-full col-span-2">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
+        <CardTitle className="capitalize">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex gap-4">
         <ActivityCalendar
