@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MultiBarChart } from "../components/multi-bar-chart";
 import { getDay } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ContributionChart } from "@/components/contribution-chart";
 
 export const revalidate = 60;
 
@@ -43,8 +44,8 @@ export default async function Home() {
     }
   };
 
-  const userOneData = await fetchData(2);
-  const userTwoData = await fetchData(1);
+  const userOneData = await fetchData(1);
+  const userTwoData = await fetchData(2);
 
   const dayData = [
     { day: "Sun", userOne: 0, userTwo: 0 },
@@ -72,7 +73,7 @@ export default async function Home() {
     };
   }
   return (
-    <div className="grid grid-rows-[16px_1fr_16px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <div className="grid grid-rows-[16px_1fr_16px] items-center justify-items-center min-h-screen p-8 pb-20 gap-12 sm:py-10 sm:px-20">
       <div className="flex items-center gap-4">
         <Image
           src="/img/ponyo.webp"
@@ -85,7 +86,7 @@ export default async function Home() {
       </div>
       <div className="w-full sm:grid-cols-auto-fill-300 grid gap-3 overscroll-contain">
         <MultiBarChart data={dayData} />
-        <Card>
+        <Card className="col-span-2">
           <CardHeader>
             <CardTitle>Completed Tasks</CardTitle>
           </CardHeader>
@@ -95,6 +96,14 @@ export default async function Home() {
             </p>
           </CardContent>
         </Card>
+        <ContributionChart
+          title="User One"
+          contributions={userOneData.snapshots}
+        />
+        <ContributionChart
+          title="User Two"
+          contributions={userTwoData.snapshots}
+        />
       </div>
     </div>
   );
