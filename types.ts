@@ -10,3 +10,8 @@ export type DayData = {
   day: string;
   [key: string]: number | string;
 };
+
+export type ChartData = {
+  date: string;
+  [key: string]: number | string;
+};

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TanstackProvider } from "@/components/tanstack-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
@@ -21,9 +22,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${ibmPlexMono.className} antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+        <TanstackProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </TanstackProvider>
       </body>
     </html>
   );
